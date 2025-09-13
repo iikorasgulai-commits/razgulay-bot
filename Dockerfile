@@ -1,16 +1,16 @@
 # Используем официальный PHP-образ
-FROM php:8.1-cli
+FROM php:8.2-cli
 
-# Устанавливаем curl (для работы с Telegram API)
+# curl для работы с Telegram API
 RUN apt-get update && apt-get install -y \
     libcurl4-openssl-dev \
-    && docker-php-ext-install curl
+    && docker-php-ext-install curl \
+    && rm -rf /var/lib/apt/lists/*
 
-# Копируем все файлы в контейнер
+# Рабочая папка и файлы
+WORKDIR /app
 COPY . /app/
 
-# Устанавливаем рабочую директорию
-WORKDIR /app
-
-# Указываем команду запуска
-CMD ["php", "webhook.php"]
+# Railway даёт порт в переменной PORT, слушаем его
+EXPOSE 3000
+CMD ["sh", "-c", "php -S 0.0.0.0:${PORT:-3000} -t ."]
